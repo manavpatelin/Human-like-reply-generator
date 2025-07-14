@@ -8,11 +8,11 @@ load_dotenv()
 MONGO_DB_URL = os.getenv("MONGO_DB_URL")
 
 try:
-    client = MongoClient(MONGO_DB_URL, tls=True, serverSelectionTimeoutMS=5000)
+    client = MongoClient(MONGO_DB_URL, serverSelectionTimeoutMS=5000)
     client.admin.command("ping")
-    print("✅ MongoDB connection successful")
+    print("✅ MongoDB connected")
 except Exception as e:
-    print("❌ MongoDB connection error:", e)
+    print("❌ MongoDB connection failed:", e)
 
 db = client["Reply_db"]
 collection = db["Posts"]

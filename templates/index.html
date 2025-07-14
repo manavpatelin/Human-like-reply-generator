@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human-Like Reply Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            display: none;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,.3);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Human-Like Reply Generator</h1>
+    
+    <div class="form-group">
+        <label for="platform">Platform:</label>
+        <select id="platform">
+            <option value="twitter">Twitter</option>
+            <option value="facebook">Facebook</option>
+            <option value="instagram">Instagram</option>
+            <option value="linkedin">LinkedIn</option>
+            <option value="reddit">Reddit</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="post_text">Post Text:</label>
+        <textarea id="post_text" placeholder="Enter the post text here..."></textarea>
+    </div>
+    
+    <button id="generate">Generate Reply <span id="loading" class="loading" style="display: none;"></span></button>
+    
+    <div id="result">
+        <h3>Generated Reply:</h3>
+        <p id="reply"></p>
+    </div>
+
+    <script>
+        document.getElementById('generate').addEventListener('click', async function() {
+            const platform = document.getElementById('platform').value;
+            const postText = document.getElementById('post_text').value;
+            
+            if (!postText.trim()) {
+                alert('Please enter some post text');
+                return;
+            }
+            
+            // Show loading indicator
+            document.getElementById('loading').style.display = 'inline-block';
+            document.getElementById('result').style.display = 'none';
+            
+            try {
+                const response = await fetch('/reply', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        platform: platform,
+                        post_text: postText
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Hide loading indicator
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('result').style.display = 'block';
+                
+                if (data.error) {
+                    document.getElementById('reply').innerHTML = `<span class="error">Error: ${data.error}</span>`;
+                } else {
+                    document.getElementById('reply').textContent = data.reply;
+                }
+            } catch (error) {
+                // Hide loading indicator
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('reply').innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        });
+    </script>
+</body>
+</html>
